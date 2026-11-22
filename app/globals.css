@@ -1,0 +1,165 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * CogniCare design tokens.
+ *
+ * The look is built from "game tiles": anything chunky, coloured and with a
+ * thick lip underneath can be pressed. Flat white panels with a thin outline
+ * only show information. Every text/background pair below meets WCAG AA
+ * (4.5:1) or better.
+ */
+:root {
+  --radius: 0.875rem;
+
+  --background: #f4f5f2; /* chalk: a cool near-white, easy on the eyes */
+  --foreground: #14213d; /* ink navy: 15:1 on chalk */
+
+  --card: #ffffff;
+  --card-foreground: #14213d;
+  --popover: #ffffff;
+  --popover-foreground: #14213d;
+
+  --primary: #14213d;
+  --primary-foreground: #ffffff;
+  --secondary: #e7eaf2;
+  --secondary-foreground: #14213d;
+  --muted: #e9ebe6;
+  --muted-foreground: #47516b; /* 7.4:1 on chalk */
+  --accent: #f5b700; /* sun yellow: always paired with ink text */
+  --accent-foreground: #14213d;
+  --accent-soft: #fff1bf;
+
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --success: #1f7a4d;
+  --success-foreground: #ffffff;
+  --warning: #92400e;
+  --warning-foreground: #ffffff;
+
+  --border: #cfd4de;
+  --input: #5b6785; /* form fields need a clearly visible edge */
+  --ring: #2b4bd6;
+
+  /* One colour for each game, with a soft tint for backgrounds. */
+  --memory: #2b4bd6;
+  --memory-soft: #e4e9fc;
+  --sequence: #7a2e8a;
+  --sequence-soft: #f4e4f7;
+  --pattern: #c2410c;
+  --pattern-soft: #fde8dc;
+  --routine: #1f7a4d;
+  --routine-soft: #dcf2e6;
+  --people: #a3195b;
+  --people-soft: #fbe3ee;
+}
+
+@theme inline {
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-memory: var(--memory);
+  --color-memory-soft: var(--memory-soft);
+  --color-sequence: var(--sequence);
+  --color-sequence-soft: var(--sequence-soft);
+  --color-pattern: var(--pattern);
+  --color-pattern-soft: var(--pattern-soft);
+  --color-routine: var(--routine);
+  --color-routine-soft: var(--routine-soft);
+  --color-people: var(--people);
+  --color-people-soft: var(--people-soft);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+  --radius-3xl: calc(var(--radius) + 14px);
+}
+
+@layer base {
+  html {
+    /*
+     * 18px base text when the browser default is 16px. A percentage (not px)
+     * keeps the user's own browser text-size setting working, and every
+     * rem-based size (text, spacing, buttons) scales up with it.
+     */
+    font-size: 112.5%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-sans leading-relaxed text-foreground;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+    text-wrap: balance;
+  }
+
+  /* Thick, high-contrast focus outline for keyboard and switch users. */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+/*
+ * The "tile": a chunky pressable surface. The coloured lip underneath
+ * squashes when pressed, so the screen answers a touch the way a real
+ * game piece would. Set the lip colour with `[--lip:#...]`.
+ */
+@utility tile {
+  --lip: rgb(20 33 61 / 0.9);
+  box-shadow: 0 5px 0 0 var(--lip);
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out,
+    background-color 120ms,
+    border-color 120ms;
+  &:not(:disabled):active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 0 var(--lip);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
