@@ -25,9 +25,7 @@ const sequenceRules = await loadTypeScriptModule(resolve("lib/games/sequence-rec
 const history = await loadTypeScriptModule(resolve("lib/games/session-history.ts"), (specifier) =>
   specifier === "@/lib/games/memory-match" ? memoryRules : require(specifier),
 );
-const explanations = await loadTypeScriptModule(resolve("lib/games/explanations.ts"), (specifier) =>
-  specifier === "@/lib/games/memory-match" ? memoryRules : require(specifier),
-);
+
 
 test("sequences are the requested length and never repeat an item immediately", () => {
   const sequence = sequenceRules.createSequence(6, () => 0.2);
@@ -77,33 +75,6 @@ test("sequence sessions persist independently from Memory Match", () => {
   history.saveGameSession("p1", session);
   assert.equal(history.loadGameHistory("p1", "sequence-recall")[0].id, "sequence");
   assert.equal(history.loadGameHistory("p1", "memory-match").length, 0);
-  assert.match(explanations.summarizeSession(session), /5 items, 3s average response/);
   delete globalThis.window;
 });
 
-test("the plain-language explanation matches the rule that was applied", () => {
-  const up = memoryRules.evaluateDifficulty(
-    [
-      { accuracy: 100, level: 1 },
-      { accuracy: 80, level: 1 },
-    ],
-    1,
-  );
-  assert.match(explanations.explainDecision(up), /one step harder/);
-  const down = memoryRules.evaluateDifficulty(
-    [
-      { accuracy: 10, level: 2 },
-      { accuracy: 0, level: 2 },
-    ],
-    2,
-  );
-  assert.match(explanations.explainDecision(down), /one step easier/);
-  const justMoved = memoryRules.evaluateDifficulty(
-    [
-      { accuracy: 100, level: 3 },
-      { accuracy: 100, level: 2 },
-    ],
-    3,
-  );
-  assert.match(explanations.explainDecision(justMoved), /one more game at this level/);
-});

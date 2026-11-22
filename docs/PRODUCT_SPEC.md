@@ -227,7 +227,7 @@ acted_by, acted_at, device_id; unique(reminder_id, due_at))`
 
 - WCAG 2.2 AA minimum for the whole app; patient mode aims for AAA contrast where possible; focus visible; skip link; semantic
   landmarks; labels on every control; live regions for status; `prefers-reduced-motion`; text resizing to 200% without loss.
-- Patient mode rules: see the `patient-ui-rules` skill. Family area is calm but denser; mobile-first for carers.
+- Patient mode uses large targets and plain language, avoids scores and time pressure, and keeps navigation calm. Use familiar, adult-appropriate content and respect reduced-motion preferences. The family area is calm but denser and mobile-first for carers.
 - Plain language, short sentences, reading age about 12; no idioms; test with a screen reader (NVDA/TalkBack) at least once.
 - Hindi: layout tested with Devanagari, 30% longer strings; numerals consistent; right-to-left not needed.
 - Empty, loading, error and offline states are designed, not defaults. Every error says what happened and what to do.
