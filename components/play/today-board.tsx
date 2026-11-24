@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Check, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { Bell, Check, Sparkles, Volume2 } from "lucide-react";
 
 import { usePlay } from "@/components/play/play-context";
 import { RestSuggestion } from "@/components/play/rest-suggestion";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { visibleGames } from "@/lib/games/visible-games";
 import { useLifeStory } from "@/lib/life-story/use-life-story";
 import type { Occurrence } from "@/lib/schedule/occurrences";
+import { speak } from "@/lib/schedule/speech";
 import { dayInWords, localParts, partOfDay, timeInWords, type PartOfDay } from "@/lib/schedule/time";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +35,7 @@ export function TodayBoard() {
   const { profile, profileId } = usePlay();
   const { now, plan, done } = useToday();
   const life = useLifeStory(profileId);
+  const [audioNotice, setAudioNotice] = useState("");
 
   const firstName = profile.displayName.trim().split(/\s+/)[0];
   const part = now ? partOfDay(localParts(now, profile.timezone).hour) : null;
@@ -45,6 +48,13 @@ export function TodayBoard() {
   const next = plan?.next ?? null;
   const isNow = next?.status === "due" || next?.status === "snoozed";
   const nextPhoto = next ? photoFor(next) : undefined;
+  const visit = plan?.items.find(
+    (item) => item.reminder.kind === "visit" && item.status !== "done" && item.status !== "missed",
+  );
+  const visitPhoto = visit && photoFor(visit);
+  const visitTime = visit && timeInWords(visit.time);
+  const visitTitle = visit?.reminder.title ?? "There are no more visits on today's schedule.";
+  const visitMessage = visit?.reminder.speakText;
 
   return (
     <div className="space-y-8">
@@ -107,6 +117,39 @@ export function TodayBoard() {
             )}
           </div>
         </section>
+      )}
+
+      {plan && (
+        <details className="rounded-3xl border-2 bg-card">
+          <summary className="cursor-pointer rounded-3xl p-6 text-2xl font-bold focus-visible:outline-4 focus-visible:outline-ring">
+            Who’s visiting today?
+          </summary>
+          <div className="space-y-3 px-6 pb-6">
+            {visitPhoto && (
+              // Family photos can be local blob URLs.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={visitPhoto.photoUrl} alt={visitPhoto.label} className="size-40 rounded-2xl object-cover" />
+            )}
+            {visitTime && <p className="text-xl">Next visit on the schedule · {visitTime}</p>}
+            <p className="text-3xl font-bold [overflow-wrap:anywhere]">{visitTitle}</p>
+            {visitMessage && <p className="text-xl [overflow-wrap:anywhere]">{visitMessage}</p>}
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={async () => {
+                setAudioNotice("");
+                const played = await speak(
+                  [visitTitle, visitTime, visitMessage].filter(Boolean).join(". "),
+                  profile.language,
+                );
+                if (!played) setAudioNotice("Audio is unavailable on this device.");
+              }}
+            >
+              <Volume2 aria-hidden /> Read aloud
+            </Button>
+            <p role="status">{audioNotice}</p>
+          </div>
+        </details>
       )}
 
       {plan && plan.later.length > 0 && (

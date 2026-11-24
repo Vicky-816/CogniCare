@@ -33,6 +33,15 @@ export type Occurrence = {
 
 export const occurrenceKey = (reminderId: string, dueAt: string) => `${reminderId}@${dueAt}`;
 
+export function needsCaregiverCheck(item: Occurrence): boolean {
+  return (
+    item.status === "done" &&
+    item.reminder.needsConfirmation &&
+    item.event?.actedBy === "patient" &&
+    !item.event.confirmedAt
+  );
+}
+
 /** Does the reminder repeat on this calendar day (ignoring times)? */
 export function repeatsOn(reminder: Reminder, key: string): boolean {
   const { repeat } = reminder;

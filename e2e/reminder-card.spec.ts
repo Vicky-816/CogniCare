@@ -42,12 +42,13 @@ async function fakeSpeech(page: Page, { blocked = false } = {}) {
 
 const spokenOn = (page: Page) => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken);
 
-async function setUpMorningTablets(page: Page, name = "Asha") {
+async function setUpMorningTablets(page: Page, name = "Asha", needsCheck = false) {
   const id = await addPerson(page, name);
   await page.goto(`/family/profiles/${id}/schedule`);
   await page.getByLabel("What is it for?").fill("Morning tablets");
   await page.getByLabel("Time 1", { exact: true }).fill("08:00");
   await page.getByLabel("What should the tablet say?").fill("Time for your morning tablets, with water.");
+  if (needsCheck) await page.getByLabel("A carer should check it was really done").check();
   await page.getByRole("button", { name: "Add reminder" }).click();
   await expect(page.getByText(/^Morning tablets was added/)).toBeVisible();
   return id;
@@ -65,7 +66,7 @@ test.describe("reminder card on the tablet", () => {
 
   test("appears at the right time, is read aloud, and Done is shown to the family", async ({ page }) => {
     await fakeSpeech(page);
-    const id = await setUpMorningTablets(page);
+    const id = await setUpMorningTablets(page, "Asha", true);
     await page.goto(`/play/${id}`);
     const card = page.getByRole("dialog", { name: "Morning tablets" });
     await expect(card).toHaveCount(0);
@@ -94,6 +95,15 @@ test.describe("reminder card on the tablet", () => {
     const item = await openSchedule(page, id);
     await expect(item).toContainText("Done");
     await expect(item).not.toContainText("marked by you");
+    await page.goto(`/family/profiles/${id}`);
+    const overview = page.getByRole("region", { name: "Today’s care overview" });
+    await expect(overview).toContainText("awaiting your confirmation");
+    await overview.getByRole("link", { name: "Open the schedule" }).click();
+    await item.getByRole("button", { name: /^Confirm/ }).click();
+    await expect(item.getByRole("button")).toHaveCount(0);
+    await page.goto(`/family/profiles/${id}`);
+    await expect(overview).toContainText("1 of 1 reminders marked done");
+    await expect(overview.getByRole("heading", { name: "Needs a check" })).toHaveCount(0);
   });
 
   test("Later brings the card back after ten minutes", async ({ page }) => {

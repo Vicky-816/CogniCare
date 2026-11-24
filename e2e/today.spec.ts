@@ -25,7 +25,26 @@ test.describe("Today board (tablet home)", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Good morning, Asha." })).toBeVisible();
     await expect(page.getByText("It is Saturday morning, 14 November.")).toBeVisible();
     await expect(page.getByText("A quiet day, Asha.")).toBeVisible();
+    await page.getByText("Who’s visiting today?").click();
+    await expect(page.getByText("There are no more visits on today's schedule.")).toBeVisible();
     await expectNoA11yViolations(page);
+  });
+
+  test("answers a visit question even when another reminder is next", async ({ page }) => {
+    const id = await addPerson(page, "Asha");
+    await page.goto(`/family/profiles/${id}/schedule`);
+    await addReminder(page, "Breakfast", "08:00");
+    await page.getByRole("combobox", { name: /^Type/ }).selectOption("visit");
+    await page.getByLabel("What should the tablet say?").fill("Meera is bringing your photo album.");
+    await addReminder(page, "Tea with Meera", "16:00");
+    await page.goto(`/play/${id}`);
+    await expect(page.getByTestId("today-next")).toContainText("Breakfast");
+    await page.getByText("Who’s visiting today?").click();
+    const answer = page.locator("details").filter({ hasText: "Who’s visiting today?" });
+    await expect(answer).toContainText("Tea with Meera");
+    await expect(answer).toContainText("4:00");
+    await expect(answer.getByText("Meera is bringing your photo album.")).toBeVisible();
+    await expect(answer.getByRole("button", { name: "Read aloud" })).toBeEnabled();
   });
 
   test("shows what is next and what comes later, with no numbers or scores", async ({ page }) => {

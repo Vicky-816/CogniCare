@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowRight, Images, Play, UserPlus } from "lucide-react";
+import { ArrowRight, CalendarClock, Images, Play, UserPlus } from "lucide-react";
 
 import { PinPanel } from "@/components/family/pin-panel";
 import { startPatientMode } from "@/components/family/start-patient-mode";
@@ -43,7 +43,7 @@ export function FamilyHome() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold sm:text-5xl">Your family area</h1>
         <p className="max-w-2xl text-xl text-muted-foreground">
-          Add a person and their familiar photos to set up games made for them.
+          Manage each person’s daily reminders, familiar photos and activities.
         </p>
       </div>
 
@@ -80,6 +80,12 @@ export function FamilyHome() {
                   <Button size="lg" onClick={() => void startPatientMode(profile.id, router.push)}>
                     <Play aria-hidden />
                     Start patient mode
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href={`/family/profiles/${profile.id}/schedule`}>
+                      <CalendarClock aria-hidden />
+                      Daily schedule
+                    </Link>
                   </Button>
                   <Button asChild variant="outline">
                     <Link href={`/family/profiles/${profile.id}/life-story`}>

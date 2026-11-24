@@ -9,7 +9,7 @@ import { Input, Select } from "@/components/ui/input";
 import { useLifeStory } from "@/lib/life-story/use-life-story";
 import { getProfileStore } from "@/lib/profiles/store";
 import type { CareProfile } from "@/lib/profiles/types";
-import type { Occurrence } from "@/lib/schedule/occurrences";
+import { needsCaregiverCheck, type Occurrence } from "@/lib/schedule/occurrences";
 import { canSpeak, speak } from "@/lib/schedule/speech";
 import { dayKey, localParts, timeInWords } from "@/lib/schedule/time";
 import {
@@ -100,9 +100,7 @@ function StatusLabel({ item }: { item: Occurrence }) {
   const base = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-base font-semibold";
   switch (item.status) {
     case "done": {
-      const needsCheck =
-        item.reminder.needsConfirmation && item.event?.actedBy === "patient" && !item.event.confirmedAt;
-      if (needsCheck)
+      if (needsCaregiverCheck(item))
         return <span className={`${base} bg-accent-soft text-warning`}>Done on the tablet: please check</span>;
       return (
         <span className={`${base} bg-routine-soft text-success`}>
@@ -306,11 +304,7 @@ function Schedule({ profile }: { profile: CareProfile }) {
         {today && today.items.length > 0 && (
           <ul role="list" className="space-y-3">
             {today.items.map((item) => {
-              const needsCheck =
-                item.status === "done" &&
-                item.reminder.needsConfirmation &&
-                item.event?.actedBy === "patient" &&
-                !item.event.confirmedAt;
+              const needsCheck = needsCaregiverCheck(item);
               const canMark = item.status !== "done" || needsCheck;
               return (
                 <li
@@ -549,7 +543,9 @@ function Schedule({ profile }: { profile: CareProfile }) {
                 />
               </label>
               <p className="text-base text-muted-foreground">
-                Short and friendly works best. If you leave this empty, the tablet reads the title.
+                {form.kind === "visit"
+                  ? "Include the visitor’s name and something familiar. This message also appears under “Who’s visiting today?” on the tablet."
+                  : "Short and friendly works best. If you leave this empty, the tablet reads the title."}
               </p>
               {canSpeak() && (
                 <Button

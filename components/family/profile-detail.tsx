@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarClock, ChevronLeft, Images, Play, Trash2 } from "lucide-react";
+import { ArrowRight, ChevronLeft, Images, Play, Trash2 } from "lucide-react";
 
+import { DayOverview } from "@/components/family/day-overview";
 import { ProfileSettings } from "@/components/family/profile-settings";
 import { startPatientMode } from "@/components/family/start-patient-mode";
 import { Avatar } from "@/components/profile/avatar";
@@ -119,6 +120,8 @@ export function ProfileDetail({ profileId }: { profileId: string }) {
         </div>
       </div>
 
+      <DayOverview key={profile.id} profile={profile} />
+
       <section aria-labelledby="name-heading" className="space-y-4 rounded-3xl border-2 bg-card p-6 sm:p-8">
         <h2 id="name-heading" className="text-2xl font-bold">
           Name
@@ -152,31 +155,6 @@ export function ProfileDetail({ profileId }: { profileId: string }) {
             </p>
           )}
         </div>
-      </section>
-
-      <section
-        aria-labelledby="schedule-heading"
-        className="flex flex-wrap items-center justify-between gap-5 rounded-3xl bg-routine-soft p-6 sm:p-8"
-      >
-        <div className="flex max-w-xl items-start gap-4">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-routine text-white">
-            <CalendarClock aria-hidden className="size-7" />
-          </span>
-          <div className="space-y-1">
-            <h2 id="schedule-heading" className="text-2xl font-bold">
-              Daily schedule and reminders
-            </h2>
-            <p className="text-lg">
-              Medicine, meals, water and visits. The tablet shows each one at the right time and reads it aloud.
-            </p>
-          </div>
-        </div>
-        <Button asChild size="lg" className="w-full sm:w-auto">
-          <Link href={`/family/profiles/${profile.id}/schedule`}>
-            Open the schedule
-            <ArrowRight aria-hidden />
-          </Link>
-        </Button>
       </section>
 
       <section

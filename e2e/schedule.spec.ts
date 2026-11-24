@@ -37,6 +37,12 @@ test.describe("daily schedule (family area)", () => {
     await page.clock.runFor(30 * 60_000);
     await expect(item).toContainText("Missed");
 
+    await page.goto(`/family/profiles/${id}`);
+    const overview = page.getByRole("region", { name: "Today’s care overview" });
+    await expect(overview.getByRole("listitem")).toContainText("Morning tablets");
+    await expect(overview).toContainText("No completion recorded");
+    await overview.getByRole("link", { name: "Open the schedule" }).click();
+
     await item.getByRole("button", { name: /Mark done/ }).click();
     await expect(item).toContainText("Done (marked by you)");
     await expect(item.getByRole("button")).toHaveCount(0);
@@ -44,6 +50,9 @@ test.describe("daily schedule (family area)", () => {
     // It is still there after a reload (saved on the device).
     await page.reload();
     await expect(page.getByTestId("today-item").filter({ hasText: "Morning tablets" })).toContainText("Done");
+    await page.goto(`/family/profiles/${id}`);
+    await expect(overview).toContainText("1 of 1 reminders marked done");
+    await expect(overview.getByRole("heading", { name: "Needs a check" })).toHaveCount(0);
   });
 
   test("a reminder can be changed, set for chosen days, and stopped", async ({ page }) => {
