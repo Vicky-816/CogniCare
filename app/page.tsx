@@ -62,7 +62,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <Button asChild size="lg" variant="accent">
-                <Link href="/play">Start playing</Link>
+                <Link href="/#games-heading">Start playing</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href="/family">Set up for someone</Link>
@@ -79,7 +79,7 @@ export default function HomePage() {
               Games built around the person
             </h2>
             <Button asChild variant="link" size="sm">
-              <Link href="/play">Open the games</Link>
+              <Link href="/play">Open family activities</Link>
             </Button>
           </div>
           <ul role="list" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,7 +88,7 @@ export default function HomePage() {
               return (
                 <li key={id}>
                   <Link
-                    href="/play"
+                    href={id === "who-is-this" ? "/family" : `/games/${id}`}
                     className={cn(
                       "flex h-full min-h-48 tile flex-col justify-between gap-6 rounded-3xl p-6 focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
                       theme.solid,
@@ -185,3 +185,4 @@ export default function HomePage() {
     </>
   );
 }
+

@@ -6,6 +6,7 @@ import { RotateCcw, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { usePlay } from "@/components/play/play-context";
+import { GUEST_PROFILE_ID } from "@/lib/games/guest";
 import { extendSession, isSessionOver, touchSession } from "@/lib/play/session-timer";
 import { GAME_THEME, type GameId } from "@/lib/games/theme";
 import { cn } from "@/lib/utils";
@@ -106,7 +107,9 @@ export function ResultCard({ game, onPlayAgain }: { game: GameId; onPlayAgain: (
               Play again
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href={`/play/${profileId}/activities`}>Choose another activity</Link>
+              <Link href={profileId === GUEST_PROFILE_ID ? "/#games-heading" : `/play/${profileId}/activities`}>
+                Choose another activity
+              </Link>
             </Button>
           </>
         )}
@@ -114,3 +117,4 @@ export function ResultCard({ game, onPlayAgain }: { game: GameId; onPlayAgain: (
     </section>
   );
 }
+

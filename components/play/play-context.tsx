@@ -7,9 +7,25 @@ import { TodayProvider } from "@/components/play/today-context";
 import { Button } from "@/components/ui/button";
 import { touchSession } from "@/lib/play/session-timer";
 import { getProfileStore } from "@/lib/profiles/store";
+import { GUEST_PROFILE_ID } from "@/lib/games/guest";
 import type { CareProfile } from "@/lib/profiles/types";
 
 const PlayContext = createContext<CareProfile | null>(null);
+
+const guestProfile: CareProfile = {
+  id: GUEST_PROFILE_ID,
+  displayName: "Guest",
+  supportLevel: 1,
+  sessionMinutes: 10,
+  language: "en",
+  timezone: "Asia/Kolkata",
+  showGeneralGames: true,
+  createdAt: "",
+};
+
+export function GuestPlayProvider({ children }: { children: ReactNode }) {
+  return <PlayContext.Provider value={guestProfile}>{children}</PlayContext.Provider>;
+}
 
 /** The person who is playing. Only works inside <PlayProvider>. */
 export function usePlay() {
@@ -45,7 +61,7 @@ export function PlayProvider({ profileId, children }: { profileId: string; child
   if (state.status === "loading") {
     return (
       <p role="status" className="text-xl">
-        Getting ready…
+        Getting readyâ€¦
       </p>
     );
   }
@@ -70,3 +86,4 @@ export function PlayProvider({ profileId, children }: { profileId: string; child
     </PlayContext.Provider>
   );
 }
+

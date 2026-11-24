@@ -101,7 +101,7 @@ export function HeroDemo() {
       {done && (
         <div className="mt-2 flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/play">Play the real game</Link>
+            <Link href="/games/memory-match">Play Memory Match</Link>
           </Button>
           <Button variant="secondary" onClick={reset}>
             Try again
@@ -111,3 +111,4 @@ export function HeroDemo() {
     </div>
   );
 }
+

@@ -6,6 +6,7 @@ import { clearLifeStoryCache } from "@/lib/life-story/store";
 import { clearProfileCache } from "@/lib/profiles/store";
 import { clearScheduleCache } from "@/lib/schedule/store";
 import { createClient } from "@/lib/supabase/client";
+import { GUEST_PROFILE_ID } from "@/lib/games/guest";
 
 /*
  * Local-first sync, one person (profile) at a time. Every finished game is
@@ -55,6 +56,7 @@ async function currentUserId(client: Client): Promise<string | null> {
 /** Uploads one finished game right after it is saved on the device. */
 export async function syncGameSession(profileId: string, session: GameSession) {
   try {
+    if (profileId === GUEST_PROFILE_ID) return { synced: 0, error: null };
     if (typeof window === "undefined") return { synced: 0, error: null };
     const client = createClient();
     if (!client) return { synced: 0, error: null };
@@ -75,6 +77,7 @@ const inFlight = new Map<string, Promise<SyncResult>>();
  * screen waiting.
  */
 export function syncPendingSessions(profileId: string): Promise<SyncResult> {
+  if (profileId === GUEST_PROFILE_ID) return Promise.resolve(emptyResult(profileId));
   const running = inFlight.get(profileId);
   if (running) return running;
   const timeout = new Promise<SyncResult>((resolve) => {
@@ -202,3 +205,4 @@ async function uploadSessions(
   }
   return { synced, error: null };
 }
+

@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getLifeStore } from "@/lib/life-story/store";
 import type { LifeItem, LifeItemWithPhoto } from "@/lib/life-story/types";
+import { GUEST_PROFILE_ID } from "@/lib/games/guest";
 
 type State = { status: "loading" | "ready" | "error"; items: LifeItemWithPhoto[]; error: string | null };
 
 async function loadItems(profileId: string): Promise<LifeItemWithPhoto[]> {
+  if (profileId === GUEST_PROFILE_ID) return [];
   const store = getLifeStore();
   const items: LifeItem[] = await store.list(profileId);
   const loaded = await Promise.all(
@@ -80,3 +82,4 @@ export function useLifeStory(profileId: string) {
 
   return { ...state, reload };
 }
+

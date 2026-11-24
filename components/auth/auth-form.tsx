@@ -71,7 +71,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <p className="text-lg text-muted-foreground">
           {isLogin
             ? "Sign in to continue to CogniCare."
-            : "Create an account to get started. You can choose how you will use CogniCare next."}
+            : "Create an account to set up CogniCare for someone you care for."}
         </p>
       </div>
 
@@ -176,7 +176,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </div>
 
         <Button type="submit" size="lg" disabled={pending || googlePending} className="w-full">
-          {pending ? "Please wait…" : isLogin ? "Sign in" : "Create account"}
+          {pending ? "Please waitâ€¦" : isLogin ? "Sign in" : "Create account"}
         </Button>
       </form>
 
@@ -192,3 +192,4 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     </div>
   );
 }
+

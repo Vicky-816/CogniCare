@@ -2,6 +2,26 @@ import { expect, test } from "@playwright/test";
 
 import { addPerson, enableGeneralGames, expectNoA11yViolations } from "./helpers";
 
+test("visitors can open each basic game directly from the home page", async ({ page }) => {
+  for (const name of ["Memory Match", "Sequence Recall", "Pattern Practice", "Daily Routine"]) {
+    await page.goto("/");
+    await page
+      .getByRole("link", { name: new RegExp(name) })
+      .first()
+      .click();
+    await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+    await expect(page).toHaveURL(/\/games\//);
+    if (name === "Sequence Recall") {
+      await page.getByRole("button", { name: "Show me" }).click();
+      await expect(page.getByRole("heading", { name: "Now you try" })).toBeVisible();
+      await expect(page.getByRole("button", { name: /^Choose / }).first()).toBeEnabled();
+    }
+  }
+  await expectNoA11yViolations(page);
+  await page.getByRole("link", { name: "Back", exact: true }).click();
+  await expect(page).toHaveURL(/\/#games-heading$/);
+});
+
 test("general games stay hidden until the carer switches them on", async ({ page }) => {
   const id = await addPerson(page);
 
@@ -42,3 +62,4 @@ test("the setting is remembered after a reload", async ({ page }) => {
   await page.reload();
   await expect(page.getByRole("checkbox", { name: "Show general games" })).toBeChecked();
 });
+

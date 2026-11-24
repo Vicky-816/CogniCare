@@ -21,5 +21,6 @@ export default async function ContinuePage() {
     if (profile) redirect(`/play/${profile.id}`);
     redirect("/play");
   }
-  redirect("/auth/choose");
+  redirect("/family");
 }
+
