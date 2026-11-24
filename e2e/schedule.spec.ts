@@ -14,6 +14,9 @@ test.describe("daily schedule (family area)", () => {
 
   test("a carer adds a reminder, sees it missed calmly, and marks it done", async ({ page }) => {
     const id = await addPerson(page, "Asha");
+    await page.goto(`/family/profiles/${id}/life-story`);
+    await page.getByRole("link", { name: "Skip photos for now" }).click();
+    await expect(page).toHaveURL(new RegExp(`/family/profiles/${id}/schedule$`));
     await page.goto(`/family/profiles/${id}`);
     await page.getByRole("link", { name: "Open the schedule" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Daily schedule for Asha" })).toBeVisible();
@@ -32,6 +35,9 @@ test.describe("daily schedule (family area)", () => {
     await expect(item).toContainText("Waiting");
     await expect(page.getByText("Every day, 8:00 in the morning")).toBeVisible();
     await expectNoA11yViolations(page);
+    await page.getByRole("button", { name: "Start patient mode", exact: true }).click();
+    await expect(page.getByTestId("today-next")).toContainText("Morning tablets");
+    await page.goto(`/family/profiles/${id}/schedule`);
 
     // 08:20: past the 15-minute waiting time with nothing recorded.
     await page.clock.runFor(30 * 60_000);

@@ -20,6 +20,7 @@ import { useLifeStory } from "@/lib/life-story/use-life-story";
 import { getProfileStore } from "@/lib/profiles/store";
 import { MIN_PERSONAL_ITEMS } from "@/lib/games/memory-match";
 import { WHO_MIN_ITEMS } from "@/lib/games/who-is-this";
+import { SetupGuide } from "@/components/family/setup-guide";
 
 const KIND_TITLES: Record<LifeKind, string> = { person: "Person", place: "Place", thing: "Familiar thing" };
 
@@ -141,6 +142,8 @@ export function LifeStoryManager({ profileId }: { profileId: string }) {
           stored in your account and may also be cached on this device.
         </p>
       </div>
+
+      {status === "ready" && <SetupGuide profileId={profileId} step="photos" photoCount={items.length} />}
 
       <section aria-labelledby="add-heading" className="space-y-5 rounded-3xl border-2 bg-card p-6 sm:p-8">
         <h2 id="add-heading" className="text-2xl font-bold">

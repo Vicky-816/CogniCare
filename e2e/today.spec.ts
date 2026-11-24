@@ -58,6 +58,7 @@ test.describe("Today board (tablet home)", () => {
     const next = page.getByTestId("today-next");
     await expect(next).toContainText("Next, at 8:00 in the morning");
     await expect(next).toContainText("Morning tablets");
+    await expect(next.getByRole("button", { name: "Read aloud the next reminder" })).toBeVisible();
     const later = page.getByRole("region", { name: "Later today" });
     await expect(later.getByRole("listitem")).toHaveCount(2);
     await expect(later).toContainText("1:00 in the afternoon");

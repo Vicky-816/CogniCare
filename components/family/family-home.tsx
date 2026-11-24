@@ -43,7 +43,8 @@ export function FamilyHome() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold sm:text-5xl">Your family area</h1>
         <p className="max-w-2xl text-xl text-muted-foreground">
-          Manage each person’s daily reminders, familiar photos and activities.
+          Start by adding the person you care for. We’ll guide you through familiar photos, a first reminder and patient
+          mode.
         </p>
       </div>
 

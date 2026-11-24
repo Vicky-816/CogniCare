@@ -28,6 +28,9 @@ import {
   type Weekday,
 } from "@/lib/schedule/types";
 import { useSchedule } from "@/lib/schedule/use-schedule";
+import { SetupGuide } from "@/components/family/setup-guide";
+import { startPatientMode } from "@/components/family/start-patient-mode";
+import { useRouter } from "next/navigation";
 
 const GRACE_OPTIONS = [15, 30, 60, 120];
 /** Monday first, the way most calendars show a week. */
@@ -162,6 +165,9 @@ export function ScheduleManager({ profileId }: { profileId: string }) {
 }
 
 function Schedule({ profile }: { profile: CareProfile }) {
+  const router = useRouter();
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState("");
   const name = profile.displayName;
   const { reminders, today, error, needsDatabaseUpdate, save, stop, markDone } = useSchedule(
     profile.id,
@@ -278,6 +284,33 @@ function Schedule({ profile }: { profile: CareProfile }) {
             {error}
           </p>
         )}
+      </div>
+
+      <SetupGuide profileId={profile.id} step="schedule" />
+      <div className="space-y-3">
+        <p className="text-lg">
+          {active.length > 0
+            ? "Your reminder is saved. Start patient mode, then hand over the device. Keep CogniCare open for reminders to appear."
+            : "You can also open patient mode now and add reminders later."}
+        </p>
+        <Button
+          size="lg"
+          disabled={starting}
+          onClick={async () => {
+            setStarting(true);
+            setStartError("");
+            try {
+              await startPatientMode(profile.id, router.push);
+            } catch {
+              setStartError("Patient mode could not open. Please try again.");
+            } finally {
+              setStarting(false);
+            }
+          }}
+        >
+          {starting ? "Opening patient mode…" : "Start patient mode"}
+        </Button>
+        {startError && <p role="alert">{startError}</p>}
       </div>
 
       <section aria-labelledby="today-heading" className="space-y-5">

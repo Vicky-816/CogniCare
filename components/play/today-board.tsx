@@ -14,6 +14,7 @@ import type { Occurrence } from "@/lib/schedule/occurrences";
 import { speak } from "@/lib/schedule/speech";
 import { dayInWords, localParts, partOfDay, timeInWords, type PartOfDay } from "@/lib/schedule/time";
 import { cn } from "@/lib/utils";
+import { ReadAloud } from "@/components/play/read-aloud";
 
 /** A calm background that follows the day. Soft tones from the design tokens only. */
 const DAY_TONE: Record<PartOfDay, string> = {
@@ -66,6 +67,13 @@ export function TodayBoard() {
           {part ? GREETING[part] : "Hello"}, {firstName}.
         </h1>
         <p className="min-h-9 text-2xl font-semibold sm:text-3xl">{now ? dayInWords(now, profile.timezone) : ""}</p>
+        {now && (
+          <ReadAloud
+            text={dayInWords(now, profile.timezone)}
+            language={profile.language}
+            label="Read aloud today's date"
+          />
+        )}
       </section>
 
       <RestSuggestion />
@@ -109,6 +117,13 @@ export function TodayBoard() {
               {next.reminder.title}
             </p>
             {next.reminder.speakText && <p className="text-xl [overflow-wrap:anywhere]">{next.reminder.speakText}</p>}
+            <ReadAloud
+              text={[`At ${timeInWords(next.time)}`, next.reminder.title, next.reminder.speakText]
+                .filter(Boolean)
+                .join(". ")}
+              language={profile.language}
+              label="Read aloud the next reminder"
+            />
             {isNow && (
               <Button size="lg" className="min-h-16 text-2xl" onClick={() => void done(next)}>
                 <Check aria-hidden className="size-7" />
@@ -121,7 +136,7 @@ export function TodayBoard() {
 
       {plan && (
         <details className="rounded-3xl border-2 bg-card">
-          <summary className="cursor-pointer rounded-3xl p-6 text-2xl font-bold focus-visible:outline-4 focus-visible:outline-ring">
+          <summary className="min-h-24 cursor-pointer rounded-3xl bg-people-soft p-6 text-3xl font-bold focus-visible:outline-4 focus-visible:outline-ring">
             Who’s visiting today?
           </summary>
           <div className="space-y-3 px-6 pb-6">
@@ -152,6 +167,21 @@ export function TodayBoard() {
         </details>
       )}
 
+      {hasActivities ? (
+        <Link
+          href={`/play/${profileId}/activities`}
+          className="flex min-h-24 tile items-center justify-center gap-3 rounded-3xl bg-accent p-6 font-display text-3xl font-bold text-accent-foreground [--lip:#a37700] hover:bg-[#ffc61a] focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+        >
+          <Sparkles aria-hidden className="size-9" />
+          Activities
+        </Link>
+      ) : (
+        life.status !== "loading" && (
+          <p className="rounded-3xl bg-muted p-6 text-xl">
+            Time to relax, {firstName}. Your family will add photos and activities here.
+          </p>
+        )
+      )}
       {plan && plan.later.length > 0 && (
         <section aria-labelledby="later-heading" className="space-y-4">
           <h2 id="later-heading" className="text-3xl font-bold">
@@ -169,22 +199,6 @@ export function TodayBoard() {
             ))}
           </ul>
         </section>
-      )}
-
-      {hasActivities ? (
-        <Link
-          href={`/play/${profileId}/activities`}
-          className="flex min-h-24 tile items-center justify-center gap-3 rounded-3xl bg-accent p-6 font-display text-3xl font-bold text-accent-foreground [--lip:#a37700] hover:bg-[#ffc61a] focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-        >
-          <Sparkles aria-hidden className="size-9" />
-          Activities
-        </Link>
-      ) : (
-        life.status !== "loading" && (
-          <p className="rounded-3xl bg-muted p-6 text-xl">
-            Time to relax, {firstName}. Your family will add photos and activities here.
-          </p>
-        )
       )}
     </div>
   );
