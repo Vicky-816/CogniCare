@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { isDemoMode } from "@/lib/demo-mode";
 import {
   MAX_PROFILES,
   cleanName,
@@ -39,6 +40,7 @@ const CACHE_PROFILES_KEY = "mindplay:profiles-cache:v1";
 const CACHE_PIN_KEY = "mindplay:pin-cache:v1";
 
 function readJson<T>(key: string): T | null {
+  if (isDemoMode()) key = `demo:${key}`;
   try {
     const raw = window.localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : null;
@@ -48,6 +50,7 @@ function readJson<T>(key: string): T | null {
 }
 
 function writeJson(key: string, value: unknown) {
+  if (isDemoMode()) key = `demo:${key}`;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
@@ -158,9 +161,10 @@ const localStore: ProfileStore = {
     return readJson<PinRecord>(LOCAL_PIN_KEY);
   },
   async setPin(record) {
+    const key = isDemoMode() ? `demo:${LOCAL_PIN_KEY}` : LOCAL_PIN_KEY;
     try {
-      if (record) window.localStorage.setItem(LOCAL_PIN_KEY, JSON.stringify(record));
-      else window.localStorage.removeItem(LOCAL_PIN_KEY);
+      if (record) window.localStorage.setItem(key, JSON.stringify(record));
+      else window.localStorage.removeItem(key);
     } catch {
       throw new Error("The PIN could not be saved on this device.");
     }

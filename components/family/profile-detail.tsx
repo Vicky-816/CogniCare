@@ -184,7 +184,12 @@ export function ProfileDetail({ profileId }: { profileId: string }) {
 
       <ProfileSettings profile={profile} onSaved={setProfile} />
 
-      <ProgressHistory profileId={profile.id} title="Progress" intro={`Games ${profile.displayName} has completed.`} />
+      <ProgressHistory
+        profileId={profile.id}
+        timeZone={profile.timezone}
+        title="Progress"
+        intro={`Games ${profile.displayName} has completed.`}
+      />
 
       <section
         aria-labelledby="remove-heading"

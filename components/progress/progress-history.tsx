@@ -12,6 +12,8 @@ import { GAME_THEME } from "@/lib/games/theme";
 import { supabaseEnv } from "@/lib/supabase/env";
 import { syncPendingSessions } from "@/lib/supabase/sync";
 import { cn } from "@/lib/utils";
+import { Select } from "@/components/ui/input";
+import { WeeklyActivity } from "@/components/progress/weekly-activity";
 
 const CHART_GAMES = 12;
 
@@ -20,17 +22,20 @@ export function ProgressHistory({
   title = "My progress",
   intro = "Your completed games and how accurate you have been recently.",
   playHref,
+  timeZone = "Asia/Kolkata",
 }: {
   profileId: string;
   title?: string;
   intro?: string;
   /** Where the "Play a game" button goes. Leave out to hide the button. */
   playHref?: string;
+  timeZone?: string;
 }) {
   // null means "still reading what is saved on this device".
   const [sessions, setSessions] = useState<GameSession[] | null>(null);
+  const [selectedGame, setSelectedGame] = useState("all");
   const [syncState, setSyncState] = useState(
-    supabaseEnv() ? "Checking your account…" : "Your games are saved on this device.",
+    supabaseEnv() ? "Checking your accountâ€¦" : "Your games are saved on this device.",
   );
 
   useEffect(() => {
@@ -61,17 +66,18 @@ export function ProgressHistory({
   if (sessions === null) {
     return (
       <p role="status" className="text-lg">
-        Loading your activity history…
+        Loading your activity historyâ€¦
       </p>
     );
   }
 
-  const averageAccuracy = sessions.length
-    ? Math.round(sessions.reduce((total, session) => total + session.accuracy, 0) / sessions.length)
+  const filtered = sessions.filter((session) => selectedGame === "all" || session.game === selectedGame);
+  const averageAccuracy = filtered.length
+    ? Math.round(filtered.reduce((total, session) => total + session.accuracy, 0) / filtered.length)
     : null;
   // Oldest on the left, newest on the right.
-  const chartSessions = sessions.slice(0, CHART_GAMES).reverse();
-  const gamesTried = new Set(sessions.map((session) => session.game)).size;
+  const chartSessions = filtered.slice(0, CHART_GAMES).reverse();
+  const gamesTried = new Set(filtered.map((session) => session.game)).size;
 
   return (
     <div className="space-y-10">
@@ -80,12 +86,24 @@ export function ProgressHistory({
         <p className="text-xl text-muted-foreground">{intro}</p>
       </div>
 
+      <WeeklyActivity sessions={sessions} timeZone={timeZone} />
+      <label className="block max-w-sm space-y-2 text-lg font-semibold">
+        Filter activity history
+        <Select value={selectedGame} onChange={(event) => setSelectedGame(event.target.value)}>
+          <option value="all">All games</option>
+          {GAME_IDS.map((game) => (
+            <option key={game} value={game}>
+              {GAME_THEME[game].label}
+            </option>
+          ))}
+        </Select>
+      </label>
       <div className="grid gap-4 sm:grid-cols-3">
-        <Summary icon={Gamepad2} label="Games completed" value={String(sessions.length)} />
+        <Summary icon={Gamepad2} label="Games completed" value={String(filtered.length)} />
         <Summary
           icon={Target}
           label="Average accuracy"
-          value={averageAccuracy === null ? "—" : `${averageAccuracy}%`}
+          value={averageAccuracy === null ? "â€”" : `${averageAccuracy}%`}
         />
         <Summary icon={CircleCheck} label="Different games tried" value={`${gamesTried} of ${GAME_IDS.length}`} />
       </div>
@@ -104,7 +122,7 @@ export function ProgressHistory({
         </div>
         {chartSessions.length ? (
           <>
-            <div className="overflow-x-auto pb-2">
+            <div tabIndex={0} role="region" aria-label="Recent accuracy chart" className="overflow-x-auto pb-2">
               <ol role="list" className="flex min-w-max items-end gap-3 border-b-2 border-foreground/50">
                 {chartSessions.map((session) => (
                   <li key={`${session.game}-${session.id}`} className="flex w-20 flex-col items-center">
@@ -120,7 +138,11 @@ export function ProgressHistory({
                       {GAME_THEME[session.game].label}
                     </span>
                     <span className="text-center text-sm text-muted-foreground">
-                      {new Date(session.completedAt).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                      {new Date(session.completedAt).toLocaleDateString(undefined, {
+                        day: "numeric",
+                        month: "short",
+                        timeZone,
+                      })}
                     </span>
                   </li>
                 ))}
@@ -144,9 +166,9 @@ export function ProgressHistory({
         <h2 id="history-heading" className="text-3xl font-bold">
           Activity history
         </h2>
-        {sessions.length ? (
+        {filtered.length ? (
           <ul role="list" className="divide-y-2 rounded-2xl border-2 bg-card px-5">
-            {sessions.map((session) => (
+            {filtered.map((session) => (
               <li
                 key={`${session.game}-${session.id}`}
                 className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4"
@@ -155,13 +177,14 @@ export function ProgressHistory({
                   <span aria-hidden className={cn("size-4 shrink-0 rounded-full", GAME_THEME[session.game].pip)} />
                   <div>
                     <p className="text-xl font-bold">{GAME_THEME[session.game].label}</p>
-                    <p className="text-base text-muted-foreground">{new Date(session.completedAt).toLocaleString()}</p>
+                    <p className="text-base text-muted-foreground">
+                      {new Date(session.completedAt).toLocaleString(undefined, { timeZone })}
+                    </p>
                   </div>
                 </div>
                 <dl className="flex flex-wrap gap-x-6 gap-y-1 text-lg">
                   <Fact label="Accuracy" value={`${session.accuracy}%`} />
-                  <Fact label="Score" value={String(session.score)} />
-                  <Fact label="Mistakes" value={String(session.mistakes)} />
+                  <Fact label="Time" value={`${Math.round(session.durationSeconds / 60)} min`} />
                   <Fact label="Level" value={String(session.level)} />
                 </dl>
               </li>
@@ -169,7 +192,7 @@ export function ProgressHistory({
           </ul>
         ) : (
           <p className="rounded-2xl border-2 border-dashed p-6 text-lg text-muted-foreground">
-            No games completed yet. Choose a game to begin.
+            No completed games in this view yet.
           </p>
         )}
       </section>
@@ -213,3 +236,4 @@ function Fact({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

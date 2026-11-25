@@ -61,6 +61,9 @@ export default function HomePage() {
               and after that, playing is a single tap.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
+              <Button asChild size="lg">
+                <Link href="/demo">Try demo</Link>
+              </Button>
               <Button asChild size="lg" variant="accent">
                 <Link href="/#games-heading">Start playing</Link>
               </Button>
@@ -185,4 +188,3 @@ export default function HomePage() {
     </>
   );
 }
-

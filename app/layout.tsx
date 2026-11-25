@@ -3,6 +3,7 @@ import { Atkinson_Hyperlegible_Next, Bricolage_Grotesque } from "next/font/googl
 import type { ReactNode } from "react";
 
 import { siteConfig } from "@/lib/site";
+import { DemoBanner } from "@/components/demo-banner";
 import "./globals.css";
 
 // Body text: Atkinson Hyperlegible was designed by the Braille Institute for
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to main content
         </a>
+        <DemoBanner />
         {children}
       </body>
     </html>
